@@ -1049,7 +1049,10 @@ class ProgressiveAudioSourceMessage extends UriAudioSourceMessage {
     required String uri,
     Map<String, String>? headers,
     dynamic tag,
+    this.androidIndexSeeking = false,
   }) : super(id: id, uri: uri, headers: headers, tag: tag);
+
+  final bool androidIndexSeeking;
 
   @override
   Map<dynamic, dynamic> toMap() => <dynamic, dynamic>{
@@ -1057,6 +1060,7 @@ class ProgressiveAudioSourceMessage extends UriAudioSourceMessage {
         'id': id,
         'uri': uri,
         'headers': headers,
+        'androidIndexSeeking': androidIndexSeeking,
       };
 }
 
