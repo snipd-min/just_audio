@@ -19,7 +19,9 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  final _player = AudioPlayer();
+  final _player = AudioPlayer(
+      userAgent:
+          'Mozilla/5.0 (platform; rv:geckoversion) Gecko/geckotrail Firefox/firefoxversion');
 
   @override
   void initState() {
@@ -44,8 +46,12 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     // Try to load audio from a source and catch any errors.
     try {
       // AAC example: https://dl.espressif.com/dl/audio/ff-16b-2c-44100hz.aac
-      await _player.setAudioSource(AudioSource.uri(Uri.parse(
-          "https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3")));
+      await _player.setAudioSource(ClippingAudioSource(
+        child: AudioSource.uri(Uri.parse(
+            "https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3")),
+        start: Duration.zero,
+        end: const Duration(seconds: 5),
+      ));
     } catch (e) {
       print("Error loading audio source: $e");
     }

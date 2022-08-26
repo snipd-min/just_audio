@@ -3076,6 +3076,14 @@ _ProxyHandler _proxyHandlerForUri(Uri uri, Map<String, String>? headers) {
   Future<void> handler(_ProxyHttpServer server, HttpRequest request) async {
     final originRequest = await HttpClient().getUrl(uri);
 
+    final sb1 = StringBuffer();
+    request.headers.forEach((k, v) {
+      sb1.write('k: $k, v: $v; ');
+    });
+    print('X> start [$uri]');
+    print(
+        '\nX> handler [request] = url:${request.uri}, method: ${request.method}, headers: ${sb1}');
+
     // Rewrite request headers
     final host = originRequest.headers.value('host');
     originRequest.headers.clear();
@@ -3135,7 +3143,22 @@ _ProxyHandler _proxyHandlerForUri(Uri uri, Map<String, String>? headers) {
         }
         request.response.add(utf8.encode(m3u8));
       } else {
-        await originResponse.pipe(request.response);
+        final sb = StringBuffer();
+        originResponse.headers.forEach((k, v) {
+          sb.write('k: $k, v: $v; ');
+        });
+        var size = 0;
+        final completer = Completer<void>();
+        originResponse.listen((event) {
+          size += event.length;
+          request.response.add(event);
+        }, onDone: () {
+          completer.complete();
+        });
+        print(
+            '\nX> handler [originResponse] = statusCode:${originResponse.statusCode}, contentLength: ${originResponse.contentLength}, headers: $sb');
+        await completer.future;
+        print('\nX> size final ${uri} = $size');
       }
       await request.response.close();
     } on HttpException {
